@@ -2,7 +2,7 @@ FROM python
 
 WORKDIR /app
 
-RUN apt update  && apt install -y git vim
+RUN apt update && apt install -y git vim libgl1
 
 COPY requirements.txt ./
 
