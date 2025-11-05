@@ -1,9 +1,3 @@
-"""
-Preprocessing module for offline handwritten signature verification.
-Handles signature image preprocessing including inversion, normalization,
-cropping, and resizing.
-"""
-
 import cv2
 import numpy as np
 import os
@@ -11,24 +5,6 @@ from pathlib import Path
 from typing import Tuple
 
 def preprocess_signature(image_path: str, target_size: Tuple[int, int] = (300, 150)) -> np.ndarray:
-    """
-    Preprocess a single signature image.
-    
-    Steps:
-    1. Load image in grayscale
-    2. Invert colors (white signature on black -> black on white)
-    3. Normalize pixel values to [0, 1]
-    4. Crop tightly around signature region
-    5. Resize to fixed dimensions
-    6. Center in a white frame
-    
-    Args:
-        image_path: Path to the signature image file
-        target_size: Desired output size as (width, height). Default: (300, 150)
-    
-    Returns:
-        Preprocessed signature as a NumPy array with values in [0, 1]
-    """
     # Step 1: Load image in grayscale
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
     
@@ -46,11 +22,6 @@ def preprocess_signature(image_path: str, target_size: Tuple[int, int] = (300, 1
     # Convert back to uint8 for findNonZero
     binary = (normalized > 0.1).astype(np.uint8) * 255
     coords = cv2.findNonZero(binary)
-    
-    if coords is None:
-        # If no signature found, return a white image
-        print(f"Warning: No signature detected in {image_path}")
-        return np.ones((*target_size[::-1], ), dtype=np.float32)
     
     # Get bounding box around signature
     x, y, w, h = cv2.boundingRect(coords)
@@ -80,103 +51,3 @@ def preprocess_signature(image_path: str, target_size: Tuple[int, int] = (300, 1
     canvas[offset_y:offset_y+new_h, offset_x:offset_x+new_w] = resized
     
     return canvas
-
-
-def preprocess_dataset(base_path: str, output_path: str, target_size: Tuple[int, int] = (300, 150)) -> None:
-    """
-    Preprocess all signature images in a dataset directory.
-    
-    The function expects the following structure:
-    base_path/
-        person1/
-            signature1.jpg
-            signature2.png
-            ...
-        person2/
-            signature1.jpg
-            ...
-    
-    And creates:
-    output_path/
-        person1/
-            signature1.jpg
-            signature2.png
-            ...
-        person2/
-            signature1.jpg
-            ...
-    
-    Args:
-        base_path: Root directory containing signature folders
-        output_path: Directory where preprocessed images will be saved
-        target_size: Desired output size as (width, height). Default: (300, 150)
-    """
-    base_path = Path(base_path)
-    output_path = Path(output_path)
-    
-    if not base_path.exists():
-        raise ValueError(f"Base path does not exist: {base_path}")
-    
-    # Create output directory if it doesn't exist
-    output_path.mkdir(parents=True, exist_ok=True)
-    
-    # Supported image extensions
-    valid_extensions = {'.jpg', '.jpeg', '.png', '.bmp'}
-    
-    total_processed = 0
-    total_folders = 0
-    
-    print(f"Starting preprocessing...")
-    print(f"Source: {base_path}")
-    print(f"Output: {output_path}")
-    print(f"Target size: {target_size}")
-    print("-" * 60)
-    
-    # Iterate through all subfolders (each represents a person)
-    for person_folder in sorted(base_path.iterdir()):
-        if not person_folder.is_dir():
-            continue
-        
-        total_folders += 1
-        person_name = person_folder.name
-        
-        # Create corresponding output folder
-        output_person_folder = output_path / person_name
-        output_person_folder.mkdir(parents=True, exist_ok=True)
-        
-        # Find all image files in the person's folder
-        image_files = [
-            f for f in person_folder.iterdir()
-            if f.is_file() and f.suffix.lower() in valid_extensions
-        ]
-        
-        print(f"\nProcessing folder: {person_name} ({len(image_files)} images)")
-        
-        folder_count = 0
-        for image_file in sorted(image_files):
-            try:
-                # Preprocess the signature
-                preprocessed = preprocess_signature(str(image_file), target_size)
-                
-                # Convert back to uint8 for saving
-                output_image = (preprocessed * 255).astype(np.uint8)
-                
-                # Save with the same filename
-                output_file = output_person_folder / image_file.name
-                cv2.imwrite(str(output_file), output_image)
-                
-                folder_count += 1
-                total_processed += 1
-                
-                print(f"  ✓ {image_file.name}")
-                
-            except Exception as e:
-                print(f"  ✗ Error processing {image_file.name}: {str(e)}")
-        
-        print(f"  → Processed {folder_count}/{len(image_files)} images from {person_name}")
-    
-    print("-" * 60)
-    print(f"Preprocessing complete!")
-    print(f"Total folders: {total_folders}")
-    print(f"Total images processed: {total_processed}")
-    print(f"Output saved to: {output_path}")
