@@ -33,6 +33,67 @@ def extract_hog_features(image: np.ndarray,
     return h.flatten()
 
 
+def stroke_thickness(image: np.ndarray) -> np.ndarray:
+    """
+    Calcula a espessura média do traço na assinatura.
+    image: imagem pré-processada, com valores entre 0 e 1.
+    Retorna um array 1D com um único valor.
+    """
+    # binariza: traço = 1, fundo = 0
+    binary = (image > 0.5).astype(np.uint8)
+
+    # distance transform mede a distância de cada pixel de traço até o fundo
+    dist = cv2.distanceTransform(binary, cv2.DIST_L2, 3)
+
+    if np.count_nonzero(dist) == 0:
+        mean_thickness = 0.0
+    else:
+        # média das distâncias > 0, vezes 2 ≈ diâmetro médio
+        mean_thickness = float(np.mean(dist[dist > 0]) * 2.0)
+
+    return np.array([mean_thickness], dtype=np.float32)
+
+
+def filled_area_ratio(image: np.ndarray) -> np.ndarray:
+    """
+    Calcula a proporção de pixels de traço em relação ao total da imagem.
+    image: imagem pré-processada, com valores entre 0 e 1.
+    Retorna um array 1D com um único valor.
+    """
+    binary = (image > 0.5).astype(np.uint8)
+    total_pixels = image.size
+    filled_pixels = int(np.sum(binary))
+    ratio = filled_pixels / total_pixels if total_pixels > 0 else 0.0
+    return np.array([ratio], dtype=np.float32)
+
+
+def build_feature_vector(image: np.ndarray, mode: str = "full") -> np.ndarray:
+    """
+    Gera o vetor final de características a partir de uma imagem pré-processada.
+    mode:
+      - "full": Hu + HOG + extras
+      - "hu": apenas Hu Moments
+      - "hog": apenas HOG
+      - "hu_extra": Hu + extras simples
+    """
+    hu = extract_hu_moments(image)
+    hog = extract_hog_features(image)
+    thick = stroke_thickness(image)
+    area = filled_area_ratio(image)
+    extra = np.concatenate([thick, area], axis=0)
+
+    if mode == "full":
+        return np.concatenate([hu, hog, extra], axis=0).astype(np.float32)
+    elif mode == "hu":
+        return hu.astype(np.float32)
+    elif mode == "hog":
+        return hog.astype(np.float32)
+    elif mode == "hu_extra":
+        return np.concatenate([hu, extra], axis=0).astype(np.float32)
+    else:
+        raise ValueError(f"Modo de features desconhecido: {mode}")
+
+
 def extract_signature_features(image: np.ndarray) -> Dict[str, np.ndarray]:
     """Combines multiple feature extraction methods."""
     hu = extract_hu_moments(image)
