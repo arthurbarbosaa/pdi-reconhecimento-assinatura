@@ -1,7 +1,7 @@
 from typing import List, Tuple
 import numpy as np
-from .preprocessing import preprocess_signature
-from .features import build_feature_vector
+from preprocessing import preprocess_signature
+from features import build_feature_vector
 
 
 def load_signature_image(path: str, target_size=(300, 150)) -> np.ndarray:
