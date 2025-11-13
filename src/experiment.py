@@ -14,6 +14,10 @@ def main():
     samples = [
         # Classe 1: Assinaturas GENUÍNAS
         ("signatures/arthur/original/signature-1.jpeg", 1),
+        ("signatures/arthur/original/signature-2.jpeg", 1),
+        ("signatures/arthur/original/signature-3.jpeg", 1),
+        ("signatures/arthur/original/signature-4.jpeg", 1),
+        ("signatures/arthur/original/signature-5.jpeg", 1),
         
         # Classe 0: Assinaturas FORJADAS
         ("signatures/joao/signature-1.jpeg", 0),

@@ -23,8 +23,10 @@ def train_signature_classifier(X, y, test_size=0.3, random_state=42):
         print(f"[AVISO] Ajustando test_size para {test_size:.2f} devido ao número limitado de amostras")
     
     # Verifica se há classes suficientes para stratify
-    unique_classes = len(np.unique(y))
-    use_stratify = unique_classes >= 2 and n_samples >= 4
+    # stratify requer pelo menos 2 amostras em cada classe
+    unique_classes, class_counts = np.unique(y, return_counts=True)
+    min_class_count = np.min(class_counts) if len(class_counts) > 0 else 0
+    use_stratify = len(unique_classes) >= 2 and min_class_count >= 2
     
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=test_size, random_state=random_state, 
