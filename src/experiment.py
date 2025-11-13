@@ -1,5 +1,5 @@
-from dataset import build_dataset
-from train_model import train_signature_classifier, compute_far_frr
+from .dataset import build_dataset
+from .train_model import train_signature_classifier, compute_far_frr
 
 
 def main():

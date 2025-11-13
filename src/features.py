@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-from typing import Dict
 
 def extract_hu_moments(image: np.ndarray) -> np.ndarray:
     """Extracts 7 Hu invariant moments from a preprocessed signature image."""
@@ -92,16 +91,3 @@ def build_feature_vector(image: np.ndarray, mode: str = "full") -> np.ndarray:
         return np.concatenate([hu, extra], axis=0).astype(np.float32)
     else:
         raise ValueError(f"Modo de features desconhecido: {mode}")
-
-
-def extract_signature_features(image: np.ndarray) -> Dict[str, np.ndarray]:
-    """Combines multiple feature extraction methods."""
-    hu = extract_hu_moments(image)
-    hog = extract_hog_features(image)
-    
-    features = np.concatenate([hu, hog])
-    return {
-        "hu": hu,
-        "hog": hog,
-        "combined": features
-    }

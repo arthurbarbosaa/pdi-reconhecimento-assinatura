@@ -39,11 +39,14 @@ def train_signature_classifier(X, y, test_size=0.3, random_state=42):
     y_pred = clf.predict(X_test)
 
     acc = accuracy_score(y_test, y_pred)
-    cm = confusion_matrix(y_test, y_pred)
+    cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
 
-    print(f"Acurácia: {acc * 100:.2f}%")
-    print("Matriz de confusão:")
-    print(cm)
+    print(f"\nAcurácia: {acc * 100:.2f}%")
+    print("\nMatriz de confusão:")
+    print("                Previsto")
+    print("              Forjada  Genuina")
+    print(f"Real Forjada    {cm[0,0]:4d}     {cm[0,1]:4d}")
+    print(f"     Genuína    {cm[1,0]:4d}     {cm[1,1]:4d}")
 
     return clf, (y_test, y_pred)
 
