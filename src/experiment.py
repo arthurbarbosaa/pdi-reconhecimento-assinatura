@@ -1,69 +1,39 @@
 from .dataset import build_dataset
 from .train_model import train_signature_classifier, compute_far_frr
+from typing import List, Tuple
+
+
+def build_samples_from_persons(person_ids: List[int], samples_per_person: int = 24) -> List[Tuple[str, int]]:
+    samples = []
+    
+    for person_id in person_ids:
+        # Adiciona assinaturas genuínas (label = 1)
+        for i in range(1, samples_per_person + 1):
+            samples.append(
+                (f"signatures/full_org/original_{person_id}_{i}.png", 1)
+            )
+        
+        # Adiciona assinaturas forjadas (label = 0)
+        for i in range(1, samples_per_person + 1):
+            samples.append(
+                (f"signatures/full_forg/forgeries_{person_id}_{i}.png", 0)
+            )
+    
+    return samples
 
 
 def main():
     # ============================================
-    # ADICIONE SUAS AMOSTRAS AQUI
+    # CONFIGURAÇÃO DO DATASET
     # ============================================
-    # Formato: (caminho_da_imagem, label)
-    # - label = 1 para assinaturas GENUÍNAS
-    # - label = 0 para assinaturas FORJADAS
-    # ============================================
+    # Escolha quais pessoas incluir no treinamento
+    person_ids = [1]
     
-    samples = [
-        # Classe 1: Assinaturas GENUÍNAS
-        ("signatures/full_org/original_2_1.png", 1),
-        ("signatures/full_org/original_2_2.png", 1),
-        ("signatures/full_org/original_2_3.png", 1),
-        ("signatures/full_org/original_2_4.png", 1),
-        ("signatures/full_org/original_2_5.png", 1),
-        ("signatures/full_org/original_2_6.png", 1),
-        ("signatures/full_org/original_2_7.png", 1),
-        ("signatures/full_org/original_2_8.png", 1),
-        ("signatures/full_org/original_2_9.png", 1),    
-        ("signatures/full_org/original_2_10.png", 1),
-        ("signatures/full_org/original_2_11.png", 1),
-        ("signatures/full_org/original_2_12.png", 1),
-        ("signatures/full_org/original_2_13.png", 1),
-        ("signatures/full_org/original_2_14.png", 1),
-        ("signatures/full_org/original_2_15.png", 1),
-        ("signatures/full_org/original_2_16.png", 1),   
-        ("signatures/full_org/original_2_17.png", 1),
-        ("signatures/full_org/original_2_18.png", 1),
-        ("signatures/full_org/original_2_19.png", 1),    
-        ("signatures/full_org/original_2_20.png", 1),
-        ("signatures/full_org/original_2_21.png", 1),
-        ("signatures/full_org/original_2_22.png", 1),
-        ("signatures/full_org/original_2_23.png", 1),
-        ("signatures/full_org/original_2_24.png", 1),
-
-        # Classe 0: Assinaturas FORJADAS
-        ("signatures/full_forg/forgeries_2_1.png", 0),
-        ("signatures/full_forg/forgeries_2_2.png", 0),
-        ("signatures/full_forg/forgeries_2_3.png", 0),
-        ("signatures/full_forg/forgeries_2_4.png", 0),
-        ("signatures/full_forg/forgeries_2_5.png", 0),
-        ("signatures/full_forg/forgeries_2_6.png", 0),
-        ("signatures/full_forg/forgeries_2_7.png", 0),
-        ("signatures/full_forg/forgeries_2_8.png", 0),
-        ("signatures/full_forg/forgeries_2_9.png", 0),    
-        ("signatures/full_forg/forgeries_2_10.png", 0),
-        ("signatures/full_forg/forgeries_2_11.png", 0),
-        ("signatures/full_forg/forgeries_2_12.png", 0),
-        ("signatures/full_forg/forgeries_2_13.png", 0),
-        ("signatures/full_forg/forgeries_2_14.png", 0),
-        ("signatures/full_forg/forgeries_2_15.png", 0),
-        ("signatures/full_forg/forgeries_2_16.png", 0),   
-        ("signatures/full_forg/forgeries_2_17.png", 0),
-        ("signatures/full_forg/forgeries_2_18.png", 0),
-        ("signatures/full_forg/forgeries_2_19.png", 0),    
-        ("signatures/full_forg/forgeries_2_20.png", 0),
-        ("signatures/full_forg/forgeries_2_21.png", 0),
-        ("signatures/full_forg/forgeries_2_22.png", 0),
-        ("signatures/full_forg/forgeries_2_23.png", 0),
-        ("signatures/full_forg/forgeries_2_24.png", 0),
-    ]
+    # Quantas amostras usar de cada pessoa (padrão: 24 = todas)
+    samples_per_person = 24
+    
+    # Gera a lista de amostras automaticamente
+    samples = build_samples_from_persons(person_ids, samples_per_person)
 
     X, y = build_dataset(samples, mode="full")
     
