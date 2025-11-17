@@ -27,7 +27,7 @@ def main():
     # CONFIGURAÇÃO DO DATASET
     # ============================================
     # Escolha quais pessoas incluir no treinamento
-    person_ids = [1]
+    person_ids = [1, 2, 3, 4, 5, 6, 7, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55]
     
     # Quantas amostras usar de cada pessoa (padrão: 24 = todas)
     samples_per_person = 24

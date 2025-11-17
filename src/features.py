@@ -2,13 +2,13 @@ import cv2
 import numpy as np
 
 def extract_hu_moments(image: np.ndarray) -> np.ndarray:
-    """Extracts 7 Hu invariant moments from a preprocessed signature image."""
-    # Convert to 8-bit for cv2.moments
+    """Extrai 7 momentos invariantes de Hu de uma imagem de assinatura pré-processada."""
+    # Converter para 8-bit para cv2.moments
     img_uint8 = (image * 255).astype(np.uint8)
     moments = cv2.moments(img_uint8)
     hu = cv2.HuMoments(moments).flatten()
     
-    # Log scale transform to compress range (common practice)
+    # Transformação logarítmica para comprimir o intervalo (prática comum)
     hu = -np.sign(hu) * np.log10(np.abs(hu) + 1e-10)
     return hu
 
